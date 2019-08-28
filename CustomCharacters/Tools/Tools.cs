@@ -11,6 +11,7 @@ using MonoMod.RuntimeDetour;
 
 namespace CustomCharacters
 {
+    //Utility methods
     class Tools
     {
         public static bool verbose = false;

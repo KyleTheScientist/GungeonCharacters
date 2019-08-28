@@ -7,6 +7,8 @@ using System.Reflection;
 using UnityEngine;
 namespace CustomCharacters
 {
+    //This basically does nothing
+
     public static class StringHandler
     {
         private static FieldInfo strings = typeof(StringTableManager.ComplexStringCollection).GetField("strings", BindingFlags.NonPublic | BindingFlags.Instance);

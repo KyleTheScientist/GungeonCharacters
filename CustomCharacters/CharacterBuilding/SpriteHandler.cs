@@ -6,6 +6,11 @@ using UnityEngine;
 
 namespace CustomCharacters
 {
+    /*
+     * Handles adding sprites to the appropriate collections,
+     * creating animations, and loading them when necessary
+     */
+
     public static class SpriteHandler
     {
         private static FieldInfo spriteNameLookup =

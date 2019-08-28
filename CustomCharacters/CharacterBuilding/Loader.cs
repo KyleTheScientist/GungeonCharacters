@@ -9,6 +9,10 @@ using UnityEngine;
 
 namespace CustomCharacters
 {
+    /*
+     * Loads all the character data from the characterdata.txt
+     * and then ships it off to CharacterBuilder
+     */
     public static class Loader
     {
         public static string CharacterDirectory = Path.Combine(ETGMod.ResourcesDirectory, "../CustomCharacterData/");
@@ -51,6 +55,7 @@ namespace CustomCharacters
             }
         }
 
+        //Finds sprite folders, sprites, and characterdata.txt (and parses it)
         public static void LoadCharacterData()
         {
             var directories = Directory.GetDirectories(CharacterDirectory);
@@ -140,6 +145,7 @@ namespace CustomCharacters
             }
         }
 
+        //Main parse loop
         public static CustomCharacterData ParseCharacterData(string[] lines)
         {
             CustomCharacterData data = new CustomCharacterData();
@@ -208,6 +214,7 @@ namespace CustomCharacters
             return data;
         }
 
+        //Character name aliasing
         public static PlayableCharacters GetCharacterFromString(string characterName)
         {
             characterName = characterName.ToLower();
@@ -231,6 +238,7 @@ namespace CustomCharacters
             return PlayableCharacters.Pilot;
         }
 
+        //Stats
         public static Dictionary<StatType, float> GetStats(string[] lines, int startIndex, out int endIndex)
         {
             endIndex = startIndex;
@@ -284,6 +292,7 @@ namespace CustomCharacters
             return new Dictionary<StatType, float>();
         }
 
+        //Loadout
         public static List<Tuple<PickupObject, bool>> GetLoadout(string[] lines, int startIndex, out int endIndex)
         {
             endIndex = startIndex;

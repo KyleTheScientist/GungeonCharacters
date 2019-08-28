@@ -74,7 +74,7 @@
   <ItemGroup>
     <Compile Include="CharacterBuilding\CharacterBuilder.cs" />
     <Compile Include="CharacterSwitcher.cs" />
-    <Compile Include="CharacterBuilding\CustomCharacterData.cs" />
+    <Compile Include="CharacterBuilding\CustomCharacter.cs" />
     <Compile Include="FakePrefab\FakePrefab.cs" />
     <Compile Include="FakePrefab\FakePrefabHooks.cs" />
     <Compile Include="CharacterBuilding\FoyerCharacterHandler.cs" />

@@ -7,9 +7,10 @@ using System.Reflection;
 using UnityEngine;
 namespace CustomCharacters
 {
+    //Main module
     public class CustomCharactersModule : ETGModule
     {
-        public readonly static string version = "2.0.2";
+        public readonly static string version = "2.0.3";
         private static bool hasInitialized;
         public override void Start()
         {
@@ -21,6 +22,7 @@ namespace CustomCharacters
             Tools.Print("Did Start()", "00FF00");
         }
 
+        //Creates characters late to prevent conflict with custom loadouts and stuff
         public static void LateStart(Action<Foyer> orig, Foyer self)
         {
             orig(self);

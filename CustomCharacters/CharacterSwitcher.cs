@@ -12,6 +12,8 @@ using InputDevice = InControl.InputDevice;
 
 namespace CustomCharacters
 {
+    //Handles character switching just like the character command
+
     class CharacterSwitcher
     {
         private static FieldInfo m_instances = typeof(BraveInput).GetField("m_instances", BindingFlags.NonPublic | BindingFlags.Static);

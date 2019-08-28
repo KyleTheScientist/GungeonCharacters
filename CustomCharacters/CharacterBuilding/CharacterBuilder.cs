@@ -7,7 +7,10 @@ using UnityEngine;
 
 namespace CustomCharacters
 {
-
+    /*
+     * Creates a prefab for the custom character and applies 
+     * all the metadata to it
+     */
     public static class CharacterBuilder
     {
         public static Dictionary<string, Tuple<CustomCharacterData, GameObject>> storedCharacters = new Dictionary<string, Tuple<CustomCharacterData, GameObject>>();

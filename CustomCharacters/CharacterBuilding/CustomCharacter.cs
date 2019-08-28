@@ -23,6 +23,7 @@ namespace CustomCharacters
     {
         public CustomCharacterData data;
         private bool checkedGuns = false;
+        private List<int> infiniteGunIDs = new List<int>();
 
         void Start()
         {
@@ -65,16 +66,13 @@ namespace CustomCharacters
                     return;
                 }
 
+                CollectInfiniteGunIDs(); //Store all infinite gun PickupObject IDs in "infiniteGunIDs"
                 Tools.Print("    Gun check");
                 foreach (var gun in player.inventory.AllGuns)
                 {
-                    foreach (var item in loadout)
+                    if (infiniteGunIDs.Contains(gun.PickupObjectId))
                     {
-                        var g = item?.First?.GetComponent<Gun>();
-                        if (g && g.DisplayName == gun.DisplayName && item.Second)
-                        {
-                            gun.InfiniteAmmo = true;
-                        }
+                        gun.InfiniteAmmo = true;
                     }
                 }
                 checkedGuns = true;
@@ -86,16 +84,29 @@ namespace CustomCharacters
             }
         }
 
+        void CollectInfiniteGunIDs()
+        {
+            infiniteGunIDs = new List<int>();
+            foreach (var item in data.loadout)
+            {
+                var g = item?.First?.GetComponent<Gun>();
+                if (g && item.Second)
+                    infiniteGunIDs.Add(g.PickupObjectId);
+            }
+        }
+
+        //I was having some issues with guns marked "Infinite Ammo" not actually having infinite ammo.
+        //This just ensures that doesn't happen
         void FixedUpdate()
         {
             if (GameManager.Instance.IsLoadingLevel || GameManager.Instance.IsPaused) return;
             if (!checkedGuns)
                 CheckInfiniteGuns();
+            if (data == null) return;
 
-            var loadout = data.loadout;
             foreach (var gun in GetComponent<PlayerController>().inventory.AllGuns)
             {
-                if (gun.InfiniteAmmo)
+                if (gun.InfiniteAmmo && infiniteGunIDs.Contains(gun.PickupObjectId))
                 {
                     gun.ammo = gun.AdjustedMaxAmmo;
                     gun.RequiresFundsToShoot = false;

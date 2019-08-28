@@ -5,6 +5,7 @@ namespace CustomCharacters
 {
     public static class CollectionDumper
     {
+        //For debugging
         public static void DumpCollection(tk2dSpriteCollectionData collection)
         {
             string collectionName = string.IsNullOrEmpty(collection.name) ? collection.gameObject.name + "_Collection" : collection.name;

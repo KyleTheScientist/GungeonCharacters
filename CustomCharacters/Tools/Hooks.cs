@@ -57,6 +57,7 @@ namespace CustomCharacters
             );
         }
 
+        //Hook for Punchout UI being updated (called when UI updates)
         public static void PunchoutUpdateUI(Action<PunchoutPlayerController> orig, PunchoutPlayerController self)
         {
             orig(self);
@@ -73,6 +74,7 @@ namespace CustomCharacters
             }
         }
 
+        //Triggers FoyerCharacterHandler (called from Foyer.SetUpCharacterCallbacks)
         public static List<FoyerCharacterSelectFlag> FoyerCallbacks(Func<Foyer, List<FoyerCharacterSelectFlag>> orig, Foyer self)
         {
             var sortedByX = orig(self);
@@ -82,6 +84,7 @@ namespace CustomCharacters
             return sortedByX;
         }
 
+        //Used to add in strings 
         public static string DFGetLocalizedValue(Func<dfControl, string, string> orig, dfControl self, string key)
         {
             foreach (var pair in StringHandler.customStringDictionary)
@@ -94,7 +97,7 @@ namespace CustomCharacters
             return orig(self, key);
         }
 
-        //Used to set fake player prefabs to active on instantiation
+        //Used to set fake player prefabs to active on instantiation (hook doesn't work on this call)
         public static Object BraveLoadObject(Func<string, string, Object> orig, string path, string extension = ".prefab")
         {
             var value = orig(path, extension);
@@ -122,15 +125,9 @@ namespace CustomCharacters
             orig(self);
         }
 
-
-        //Used to set fake player prefabs to non-active on instantiation
+        //Resets all the character-specific infinite guns 
         public static void ResetCustomCharacters()
         {
-            foreach (var c in CharacterBuilder.storedCharacters)
-            {
-                //c.Value.Second.SetActive(false);
-            }
-
             foreach (var gun in CharacterBuilder.guns)
             {
                 gun.InfiniteAmmo = false;
