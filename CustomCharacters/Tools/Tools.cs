@@ -8,6 +8,8 @@ using System.Reflection;
 using UnityEngine;
 using Dungeonator;
 using MonoMod.RuntimeDetour;
+using Semi;
+using Logger = ModTheGungeon.Logger;
 
 namespace CustomCharacters
 {
@@ -15,7 +17,8 @@ namespace CustomCharacters
     class Tools
     {
         public static bool verbose = false;
-        private static string defaultLog = Path.Combine(ETGMod.ResourcesDirectory, "customCharacterLog.txt");
+		public static string resourcesDir = Path.Combine(FileHierarchy.GameFolder, "Resources");
+		private static string defaultLog = Path.Combine(resourcesDir, "customCharacterLog.txt");
 
         public static AssetBundle sharedAuto1 = ResourceManager.LoadAssetBundle("shared_auto_001");
         public static AssetBundle sharedAuto2 = ResourceManager.LoadAssetBundle("shared_auto_002");
@@ -55,39 +58,47 @@ namespace CustomCharacters
 
         public static void Print<T>(T obj, string color = "FFFFFF", bool force = false)
         {
-            if (verbose || force)
-                ETGModConsole.Log($"<color=#{color}>{modID}: {obj.ToString()}</color>");
+			CustomCharactersMod.Logger.Info($"{modID}: {obj.ToString()}");
 
-            Log(obj.ToString());
+            //if (verbose || force)
+            //    ETGModConsole.Log($"<color=#{color}>{modID}: {obj.ToString()}</color>");
+
+            //Log(obj.ToString());
         }
 
         public static void PrintRaw<T>(T obj, bool force = false)
         {
-            if (verbose || force)
-                ETGModConsole.Log(obj.ToString());
+			CustomCharactersMod.Logger.Info(obj.ToString());
 
-            Log(obj.ToString());
+            //if (verbose || force)
+            //    ETGModConsole.Log(obj.ToString());
+
+            //Log(obj.ToString());
         }
 
         public static void PrintError<T>(T obj, string color = "FF0000")
         {
-            ETGModConsole.Log($"<color=#{color}>{modID}: {obj.ToString()}</color>");
+			CustomCharactersMod.Logger.Error($"{modID}: {obj.ToString()}");
 
-            Log(obj.ToString());
+            //ETGModConsole.Log($"<color=#{color}>{modID}: {obj.ToString()}</color>");
+
+            //Log(obj.ToString());
         }
 
         public static void PrintException(Exception e, string color = "FF0000")
         {
-            ETGModConsole.Log($"<color=#{color}>{modID}: {e.Message}</color>");
-            ETGModConsole.Log(e.StackTrace);
+			CustomCharactersMod.Logger.ErrorPretty($"{modID}: {e.Message}\n{e.StackTrace}");
 
-            Log(e.Message);
-            Log("\t" + e.StackTrace);
+            //ETGModConsole.Log($"<color=#{color}>{modID}: {e.Message}</color>");
+            //ETGModConsole.Log(e.StackTrace);
+
+            //Log(e.Message);
+            //Log("\t" + e.StackTrace);
         }
 
         public static void Log<T>(T obj)
         {
-            using (StreamWriter writer = new StreamWriter(Path.Combine(ETGMod.ResourcesDirectory, defaultLog), true))
+			using (StreamWriter writer = new StreamWriter(Path.Combine(resourcesDir, defaultLog), true))
             {
                 writer.WriteLine(obj.ToString());
             }
@@ -96,7 +107,7 @@ namespace CustomCharacters
         public static void Log<T>(T obj, string fileName)
         {
             if (!verbose) return;
-            using (StreamWriter writer = new StreamWriter(Path.Combine(ETGMod.ResourcesDirectory, fileName), true))
+            using (StreamWriter writer = new StreamWriter(Path.Combine(resourcesDir, fileName), true))
             {
                 writer.WriteLine(obj.ToString());
             }
@@ -104,13 +115,39 @@ namespace CustomCharacters
 
         public static void ExportTexture(Texture texture, string folder = "")
         {
-            string path = Path.Combine(ETGMod.ResourcesDirectory, folder);
+            string path = Path.Combine(resourcesDir, folder);
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
             File.WriteAllBytes(Path.Combine(path, texture.name + ".png"), ((Texture2D)texture).EncodeToPNG());
         }
+
+		public static RuntimeAtlasPacker Packer = new RuntimeAtlasPacker(2048, 2048);
+		private readonly static Vector2[] _DefaultUVs = {
+			new Vector2(0f, 0f),
+			new Vector2(1f, 0f),
+			new Vector2(0f, 1f),
+			new Vector2(1f, 1f)
+		};
+
+		public static void ReplaceTexture(tk2dSpriteDefinition frame, Texture2D replacement, bool pack = true) {
+			frame.flipped = tk2dSpriteDefinition.FlipMode.None;
+			frame.materialInst = new Material(frame.material);
+			frame.texelSize = replacement.texelSize;
+			frame.extractRegion = true;
+			if (pack)
+			{
+				RuntimeAtlasSegment segment = Packer.Pack(replacement, 0, 0, replacement.width, replacement.height, true);
+				frame.materialInst.mainTexture = segment.texture;
+				frame.uvs = segment.uvs;
+			}
+			else
+			{
+				frame.materialInst.mainTexture = replacement;
+				frame.uvs = _DefaultUVs;
+			}
+		}
 
     }
 }

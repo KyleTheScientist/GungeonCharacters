@@ -12,7 +12,7 @@ namespace CustomCharacters
 {
     public static class ResourceExtractor
     {
-        private static string spritesDirectory = Path.Combine(ETGMod.ResourcesDirectory, "sprites");
+		private static string spritesDirectory = Path.Combine(Tools.resourcesDir, "sprites");
         private static string nameSpace = "Gungeon";
         /// <summary>
         /// Converts all png's in a folder to a list of Texture2D objects
@@ -106,7 +106,7 @@ namespace CustomCharacters
         public static List<String> GetResourceFolders()
         {
             List<String> dirs = new List<String>();
-            string spritesDirectory = Path.Combine(ETGMod.ResourcesDirectory, "sprites");
+			string spritesDirectory = Path.Combine(Tools.resourcesDir, "sprites");
 
             if (Directory.Exists(spritesDirectory))
             {
@@ -174,7 +174,7 @@ namespace CustomCharacters
             string[] names = baseAssembly.GetManifestResourceNames();
             if (names == null)
             {
-                ETGModConsole.Log("No manifest resources found.");
+				CustomCharactersMod.Logger.Warn("No manifest resources found");
                 return null;
             }
             return names;

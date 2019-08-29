@@ -1,0 +1,7 @@
+id: custom_characters
+name: Custom Characters
+version: 0.1
+author: "Zatherz, KyleTheScientist"
+description: "Semi port of KyleTheScientist's Custom Characters Mod."
+dll: mod.dll
+api_version: 1

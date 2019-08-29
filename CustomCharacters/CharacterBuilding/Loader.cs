@@ -6,6 +6,7 @@ using System.IO;
 
 using StatType = PlayerStats.StatType;
 using UnityEngine;
+using Semi;
 
 namespace CustomCharacters
 {
@@ -15,7 +16,7 @@ namespace CustomCharacters
      */
     public static class Loader
     {
-        public static string CharacterDirectory = Path.Combine(ETGMod.ResourcesDirectory, "../CustomCharacterData/");
+		public static string CharacterDirectory = Path.Combine(Tools.resourcesDir, "../CustomCharacterData/");
         public static string DataFile = "characterdata.txt";
 
         public static List<CustomCharacterData> characterData = new List<CustomCharacterData>();
@@ -27,7 +28,7 @@ namespace CustomCharacters
                 if (!Directory.Exists(CharacterDirectory))
                 {
                     DirectoryInfo dir = Directory.CreateDirectory(CharacterDirectory);
-                    ETGModConsole.Log("Created directory: " + dir.FullName);
+                    //ETGModConsole.Log("Created directory: " + dir.FullName);
                 }
             }
             catch (Exception e)
@@ -312,12 +313,12 @@ namespace CustomCharacters
                 args = line.Split(' ');
                 if (args.Length == 0) continue;
 
-                if (!Gungeon.Game.Items.ContainsID(args[0]))
+                if (!Gungeon.Items.ContainsID(args[0]))
                 {
                     Tools.PrintError("Could not find item with ID: \"" + args[0] + "\"");
                     continue;
                 }
-                var item = Gungeon.Game.Items[args[0]];
+                var item = Gungeon.Items[args[0]];
                 if (item == null)
                 {
                     Tools.PrintError("Could not find item with ID: \"" + args[0] + "\"");
