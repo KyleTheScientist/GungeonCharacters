@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 
 using UnityEngine;
+using Semi;
 
 namespace CustomCharacters
 {
@@ -53,6 +54,7 @@ namespace CustomCharacters
             var orig = player.sprite.Collection;
             var copyCollection = GameObject.Instantiate(orig);
             GameObject.DontDestroyOnLoad(copyCollection);
+			copyCollection.gameObject.SetActive(false);
 
             tk2dSpriteDefinition[] copyDefinitions = new tk2dSpriteDefinition[orig.spriteDefinitions.Length];
             for (int i = 0; i < copyCollection.spriteDefinitions.Length; i++)
@@ -93,7 +95,7 @@ namespace CustomCharacters
                 Tools.Print("        Using individual sprite replacement.", "FFBB00");
                 bool notSlinger = data.baseCharacter != PlayableCharacters.Gunslinger;
 
-                RuntimeAtlasPage page = new RuntimeAtlasPage();
+                RuntimeAtlasPage page = new RuntimeAtlasPage(2048, 2048);
                 for (int i = 0; i < data.sprites.Count; i++)
                 {
                     var tex = data.sprites[i];
@@ -104,7 +106,6 @@ namespace CustomCharacters
                     var def = copyCollection.GetSpriteDefinition(tex.name);
                     if (def != null)
                     {
-
                         if (notSlinger && def.boundsDataCenter != Vector3.zero)
                         {
                             var ras = page.Pack(tex);
@@ -124,10 +125,12 @@ namespace CustomCharacters
                         }
                         else
                         {
-                            def.ReplaceTexture(tex);
+							Tools.ReplaceTexture(def, tex);
                         }
                     }
+
                 }
+				
                 page.Apply();
             }
             else
@@ -145,9 +148,6 @@ namespace CustomCharacters
                     clip.frames[i].spriteCollection = copyCollection;
                 }
             }
-
-
-
             copyCollection.name = player.OverrideDisplayName;
 
             player.primaryHand.sprite.Collection = copyCollection;
@@ -198,7 +198,7 @@ namespace CustomCharacters
             {
                 var spriteDef = minimapSprite.GetCurrentSpriteDef();
                 var copy = spriteDef.Copy();
-                copy.ReplaceTexture(data.minimapIcon);
+                Tools.ReplaceTexture(copy, data.minimapIcon);
                 copy.name = iconName;
                 id = AddSpriteToCollection(copy, minimapSprite.Collection);
             }
@@ -301,7 +301,7 @@ namespace CustomCharacters
                 var def = copyCollection.GetSpriteDefinition(tex.name);
                 if (def != null)
                 {
-                    def.ReplaceTexture(tex.CropWhiteSpace());
+                    Tools.ReplaceTexture(def, tex.CropWhiteSpace());
                 }
             }
 

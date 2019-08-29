@@ -3,16 +3,19 @@ using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Reflection;
-
+using Logger = ModTheGungeon.Logger;
 using UnityEngine;
+using Semi;
 namespace CustomCharacters
 {
     //Main module
-    public class CustomCharactersModule : ETGModule
+    public class CustomCharactersMod : Mod
     {
-        public readonly static string version = "2.0.3";
+		public static Logger Logger = new Logger("CustomCharactersMod");
+
+		public readonly static string version = "2.0.3";
         private static bool hasInitialized;
-        public override void Start()
+        public override void Loaded()
         {
             FakePrefabHooks.Init();
             Tools.Init();
@@ -23,10 +26,8 @@ namespace CustomCharacters
         }
 
         //Creates characters late to prevent conflict with custom loadouts and stuff
-        public static void LateStart(Action<Foyer> orig, Foyer self)
+        public override void RegisterContent()
         {
-            orig(self);
-
             Tools.Print("Late start called");
             if (hasInitialized) return;
             Tools.StartTimer("Initializing mod");
@@ -41,12 +42,9 @@ namespace CustomCharacters
             }
         }
 
-        public override void Exit()
-        {
-        }
-
-        public override void Init()
-        {
-        }
-    }
+		public override void InitializeContent()
+		{
+			// nothing
+		}
+	}
 }

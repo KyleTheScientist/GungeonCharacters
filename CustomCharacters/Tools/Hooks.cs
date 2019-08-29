@@ -16,11 +16,11 @@ namespace CustomCharacters
     {
         public static void Init()
         {
-            
-            Hook lateStartHook = new Hook(
-                typeof(Foyer).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance),
-                typeof(CustomCharactersModule).GetMethod("LateStart")
-            );
+
+			//Hook lateStartHook = new Hook(
+			//    typeof(Foyer).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance),
+			//    typeof(CustomCharactersMod).GetMethod("LateStart")
+			//);
 
             Hook punchoutUIHook = new Hook(
                 typeof(PunchoutPlayerController).GetMethod("UpdateUI", BindingFlags.Public | BindingFlags.Instance),
