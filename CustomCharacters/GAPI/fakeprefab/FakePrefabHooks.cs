@@ -8,7 +8,7 @@ using UnityEngine;
 using MonoMod.RuntimeDetour;
 using Object = UnityEngine.Object;
 
-    namespace CustomCharacters
+namespace GungeonAPI
 {
     public static class FakePrefabHooks
     {

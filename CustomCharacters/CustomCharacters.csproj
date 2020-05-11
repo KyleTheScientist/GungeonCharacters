@@ -52,6 +52,9 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
@@ -75,10 +78,24 @@
     <Compile Include="CharacterBuilding\CharacterBuilder.cs" />
     <Compile Include="CharacterSwitcher.cs" />
     <Compile Include="CharacterBuilding\CustomCharacter.cs" />
-    <Compile Include="FakePrefab\FakePrefab.cs" />
-    <Compile Include="FakePrefab\FakePrefabHooks.cs" />
     <Compile Include="CharacterBuilding\FoyerCharacterHandler.cs" />
     <Compile Include="CollectionDumper.cs" />
+    <Compile Include="GAPI\dungeons\DungeonHandler.cs" />
+    <Compile Include="GAPI\dungeons\DungeonHooks.cs" />
+    <Compile Include="GAPI\fakeprefab\FakePrefab.cs" />
+    <Compile Include="GAPI\fakeprefab\FakePrefabHooks.cs" />
+    <Compile Include="GAPI\ResourceExtractor.cs" />
+    <Compile Include="GAPI\dungeons\RoomFactory.cs" />
+    <Compile Include="GAPI\shrines\Franseis.cs" />
+    <Compile Include="GAPI\shrines\NPCBuilder.cs" />
+    <Compile Include="GAPI\shrines\RandomShrine.cs" />
+    <Compile Include="GAPI\shrines\ShrineFactory.cs" />
+    <Compile Include="GAPI\shrines\FranseisInteractable.cs" />
+    <Compile Include="GAPI\shrines\SimpleInteractable.cs" />
+    <Compile Include="GAPI\shrines\SimpleShrine.cs" />
+    <Compile Include="GAPI\SpriteBuilder.cs" />
+    <Compile Include="GAPI\dungeons\StaticReferences.cs" />
+    <Compile Include="GAPI\Tools.cs" />
     <Compile Include="Tools\Hooks.cs" />
     <Compile Include="CharacterBuilding\Loader.cs" />
     <Compile Include="CustomCharactersModule.cs" />
@@ -86,8 +103,63 @@
     <Compile Include="CharacterBuilding\SpriteHandler.cs" />
     <Compile Include="CharacterBuilding\StringHandler.cs" />
     <Compile Include="Tools\TextureStitcher.cs" />
-    <Compile Include="Tools\ResourceExtractor.cs" />
-    <Compile Include="Tools\Tools.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\random_shrine.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_001.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_002.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_003.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_004.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_005.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_006.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_007.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_008.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_009.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_010.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_011.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_012.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_013.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_014.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_015.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_016.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_017.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Franseis\Idle\fran_idle_001.png" />
+    <EmbeddedResource Include="resources\Franseis\Idle\fran_idle_002.png" />
+    <EmbeddedResource Include="resources\Franseis\Idle\fran_idle_003.png" />
+    <EmbeddedResource Include="resources\Franseis\Idle\fran_idle_004.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_001.png" />
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_002.png" />
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_003.png" />
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_004.png" />
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_005.png" />
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_006.png" />
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_007.png" />
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_008.png" />
+    <EmbeddedResource Include="resources\Franseis\StartTalk\fran_talk_start_009.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Franseis\Talk\fran_talk_001.png" />
+    <EmbeddedResource Include="resources\Franseis\Talk\fran_talk_002.png" />
+    <EmbeddedResource Include="resources\Franseis\Talk\fran_talk_003.png" />
+    <EmbeddedResource Include="resources\Franseis\Talk\fran_talk_004.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_018.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_019.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_020.png" />
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_021.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Franseis\DoEffect\fran_do_effect_000.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\default_shrine_shadow_small.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

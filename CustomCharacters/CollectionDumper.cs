@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using GungeonAPI;
+
 namespace CustomCharacters
 {
     public static class CollectionDumper
@@ -31,7 +33,7 @@ namespace CustomCharacters
                     continue;
                 }
 
-                texture = ((Texture2D)material.mainTexture).GetReadable();
+                texture = (Texture2D)material.mainTexture.GetReadable();
                 width = texture.width;
                 height = texture.height;
 

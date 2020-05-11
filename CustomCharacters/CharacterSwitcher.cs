@@ -9,6 +9,7 @@ using UnityEngine;
 using MonoMod.RuntimeDetour;
 using ChangeCoopMode = HutongGames.PlayMaker.Actions.ChangeCoopMode;
 using InputDevice = InControl.InputDevice;
+using GungeonAPI;
 
 namespace CustomCharacters
 {
@@ -47,24 +48,30 @@ namespace CustomCharacters
 
         public static void SwitchSecondaryCharacter(string[] args)
         {
-            prefabPath = "Player" + args[0];
             if (args == null || args.Length < 1) return;
+            if (!GameManager.Instance.SecondaryPlayer)
+            {
+                Tools.PrintError("You need to enter co-op mode before using the character2 command");
+                return;
+            }
 
+            prefabPath = "Player" + args[0];
             var prefab = (GameObject)BraveResources.Load(prefabPath, ".prefab");
             if (prefab == null)
             {
                 Tools.Print("Failed getting prefab for " + args[0]);
                 return;
             }
-
             GameManager.Instance.StartCoroutine(HandleCharacterChange());
+            Hooks.ResetInfiniteGuns();
         }
 
         private static IEnumerator HandleCharacterChange()
         {
             //Pixelator.Instance.FadeToBlack(0.5f, false);
             InputDevice lastActiveDevice = GameManager.Instance.LastUsedInputDeviceForConversation;
-            
+
+            Vector3 position = GameManager.Instance.SecondaryPlayer.transform.position;
             //Destroy Player 2
             if (GameManager.Instance.CurrentGameType == GameManager.GameType.COOP_2_PLAYER)
             {
@@ -82,7 +89,7 @@ namespace CustomCharacters
             {
                 GameManager.Instance.PrimaryPlayer.ReinitializeMovementRestrictors();
             }
-            PlayerController newPlayer = GeneratePlayer();
+            PlayerController newPlayer = GeneratePlayer(position);
             yield return null;
                 
             GameUIRoot.Instance.ConvertCoreUIToCoopMode();
@@ -99,19 +106,17 @@ namespace CustomCharacters
             GameManager.Instance.SecondaryPlayer.characterIdentity = PlayableCharacters.CoopCultist;
 
             //Reset
-            Hooks.ResetCustomCharacters();
             GameManager.Instance.RefreshAllPlayers();
-
+            Tools.Print("Character swapped", "FFFFFF", true);
             yield break;
         }
 
-        private static PlayerController GeneratePlayer()
+        private static PlayerController GeneratePlayer(Vector3 position)
         {
             if (GameManager.Instance.SecondaryPlayer != null)
             {
                 return GameManager.Instance.SecondaryPlayer;
             }
-            var position = GameManager.Instance.PrimaryPlayer.transform.position;
             GameManager.Instance.ClearSecondaryPlayer();
             GameManager.LastUsedCoopPlayerPrefab = (GameObject)BraveResources.Load(prefabPath);
             PlayerController playerController = null;

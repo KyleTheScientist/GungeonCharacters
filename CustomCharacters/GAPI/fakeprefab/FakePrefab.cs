@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 using UnityEngine;
-namespace CustomCharacters
+namespace GungeonAPI
 {
     public class FakePrefab : Component
     {
@@ -35,6 +35,7 @@ namespace CustomCharacters
         public static void MarkAsFakePrefab(GameObject obj)
         {
             ExistingFakePrefabs.Add(obj);
+            GameObject.DontDestroyOnLoad(obj);
         }
 
         /// <summary>
@@ -55,6 +56,7 @@ namespace CustomCharacters
             if (was_active)
                 obj.SetActive(true);
 
+            GameObject.DontDestroyOnLoad(fakeprefab);
             ExistingFakePrefabs.Add(fakeprefab);
             return fakeprefab;
         }

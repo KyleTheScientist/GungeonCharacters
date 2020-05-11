@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using GungeonAPI;
 
 namespace CustomCharacters
 {
@@ -23,33 +25,51 @@ namespace CustomCharacters
     {
         public CustomCharacterData data;
         private bool checkedGuns = false;
+        private bool failedToFindData = false;
         private List<int> infiniteGunIDs = new List<int>();
 
         void Start()
         {
-            GameManager.Instance.OnNewLevelFullyLoaded += CheckInfiniteGuns;
+            GetData();
+            GameManager.Instance.OnNewLevelFullyLoaded += StartInfiniteGunCheck;
+            if (!GameManager.Instance.IsFoyer)
+            {
+                StartInfiniteGunCheck();
+            }
         }
 
-        public void CheckInfiniteGuns()
+        void GetData()
         {
-            Tools.Print("Doing infinite gun check...");
             try
+            {
+                var gameobjName = this.gameObject.name.ToLower().Replace("(clone)", "").Trim();
+                foreach (var cc in CharacterBuilder.storedCharacters.Keys)
+                {
+                    if (cc.ToLower().Equals(gameobjName))
+                        data = CharacterBuilder.storedCharacters[cc].First;
+                }
+            }
+            catch
+            {
+                failedToFindData = true;
+            }
+            if (data == null) failedToFindData = true;
+        }
+
+        public void StartInfiniteGunCheck()
+        {
+            StartCoroutine("CheckInfiniteGuns");
+        }
+
+        public IEnumerator CheckInfiniteGuns()
+        {
+            while (!checkedGuns)
             {
                 Tools.Print("    Data check");
                 if (data == null)
                 {
-                    var gameobjName = this.gameObject.name.ToLower().Replace("(clone)", "");
-                    foreach (var cc in CharacterBuilder.storedCharacters.Keys)
-                    {
-                        if (cc.ToLower().Contains(gameobjName))
-                            data = CharacterBuilder.storedCharacters[cc].First;
-                    }
-                }
-
-                if (data == null)
-                {
                     Tools.PrintError("Couldn't find a character data object for this player!");
-                    return;
+                    yield return new WaitForSeconds(.1f);
                 }
 
                 Tools.Print("    Loadout check");
@@ -57,51 +77,70 @@ namespace CustomCharacters
                 if (loadout == null)
                 {
                     checkedGuns = true;
-                    return;
+                    yield break;
                 }
+
                 var player = GetComponent<PlayerController>();
                 if (player?.inventory?.AllGuns == null)
                 {
                     Tools.PrintError("Player or inventory not found");
-                    return;
+                    yield return new WaitForSeconds(.1f);
                 }
+                Tools.Print($"Doing infinite gun check on {player.name}");
 
-                CollectInfiniteGunIDs(); //Store all infinite gun PickupObject IDs in "infiniteGunIDs"
+                this.infiniteGunIDs = GetInfiniteGunIDs();
                 Tools.Print("    Gun check");
                 foreach (var gun in player.inventory.AllGuns)
                 {
                     if (infiniteGunIDs.Contains(gun.PickupObjectId))
                     {
+                        if (!Hooks.gunBackups.ContainsKey(gun.PickupObjectId))
+                        {
+                            var backup = new Hooks.GunBackupData()
+                            {
+                                InfiniteAmmo = gun.InfiniteAmmo,
+                                PreventStartingOwnerFromDropping = gun.PreventStartingOwnerFromDropping,
+                                CanBeDropped = gun.CanBeDropped,
+                                PersistsOnDeath = gun.PersistsOnDeath
+                            };
+                            Hooks.gunBackups.Add(gun.PickupObjectId, backup);
+                            var prefab = PickupObjectDatabase.GetById(gun.PickupObjectId) as Gun;
+                            prefab.InfiniteAmmo = true;
+                            prefab.PersistsOnDeath = true;
+                            prefab.CanBeDropped = false;
+                            prefab.PreventStartingOwnerFromDropping = true;
+                        }
+
                         gun.InfiniteAmmo = true;
+                        gun.PersistsOnDeath = true;
+                        gun.CanBeDropped = false;
+                        gun.PreventStartingOwnerFromDropping = true;
+                        Tools.Print($"        {gun.name} is infinite now.");
                     }
                 }
                 checkedGuns = true;
-            }
-            catch (Exception e)
-            {
-                Tools.PrintError("Infinite gun check failed");
-                //Tools.PrintException(e);
+                yield break;
             }
         }
 
-        void CollectInfiniteGunIDs()
+        public List<int> GetInfiniteGunIDs()
         {
-            infiniteGunIDs = new List<int>();
+            var infiniteGunIDs = new List<int>();
+            if (data == null) GetData();
+            if (data == null || failedToFindData) return infiniteGunIDs;
             foreach (var item in data.loadout)
             {
                 var g = item?.First?.GetComponent<Gun>();
                 if (g && item.Second)
                     infiniteGunIDs.Add(g.PickupObjectId);
             }
+            return infiniteGunIDs;
         }
 
-        //I was having some issues with guns marked "Infinite Ammo" not actually having infinite ammo.
-        //This just ensures that doesn't happen
+        //This handles the dueling laser problem
         void FixedUpdate()
         {
             if (GameManager.Instance.IsLoadingLevel || GameManager.Instance.IsPaused) return;
-            if (!checkedGuns)
-                CheckInfiniteGuns();
             if (data == null) return;
 
             foreach (var gun in GetComponent<PlayerController>().inventory.AllGuns)
@@ -113,17 +152,19 @@ namespace CustomCharacters
 
                     if (gun.UsesRechargeLikeActiveItem)
                     {
-                        gun.OnPostFired += (PlayerController, Gun) =>
+                        if (gun.RemainingActiveCooldownAmount > 0)
                         {
-                            gun.RemainingActiveCooldownAmount = 0;
-                        };
+                            gun.RemainingActiveCooldownAmount = Mathf.Max(0f, gun.RemainingActiveCooldownAmount - 25f * BraveTime.DeltaTime);
+                        }
                     }
-                    if (gun.RemainingActiveCooldownAmount > 0)
-                    {
-                        gun.RemainingActiveCooldownAmount -= 2;
-                    }
+
                 }
             }
+        }
+
+        void OnDestroy()
+        {
+            GameManager.Instance.OnNewLevelFullyLoaded -= StartInfiniteGunCheck;
         }
     }
 }

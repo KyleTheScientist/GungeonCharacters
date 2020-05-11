@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 
 using UnityEngine;
+using GungeonAPI;
+
 namespace CustomCharacters
 {
     public static class TextureStitcher
@@ -121,7 +123,7 @@ namespace CustomCharacters
             return result;
         }
 
-        public static Texture2D GetReadable(this Texture2D texture)
+        public static Texture GetReadable(this Texture texture)
         {
             RenderTexture tmp = RenderTexture.GetTemporary(
                     texture.width,

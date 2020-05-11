@@ -8,6 +8,7 @@ using UnityEngine;
 using MonoMod.RuntimeDetour;
 using Object = UnityEngine.Object;
 using IEnumerator = System.Collections.IEnumerator;
+using GungeonAPI;
 
 
 namespace CustomCharacters
@@ -16,45 +17,56 @@ namespace CustomCharacters
     {
         public static void Init()
         {
-            
-            Hook lateStartHook = new Hook(
-                typeof(Foyer).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance),
-                typeof(CustomCharactersModule).GetMethod("LateStart")
-            );
-
-            Hook punchoutUIHook = new Hook(
-                typeof(PunchoutPlayerController).GetMethod("UpdateUI", BindingFlags.Public | BindingFlags.Instance),
-                typeof(Hooks).GetMethod("PunchoutUpdateUI")
-            );
-
-            Hook foyerCallbacksHook = new Hook(
-                typeof(Foyer).GetMethod("SetUpCharacterCallbacks", BindingFlags.NonPublic | BindingFlags.Instance),
-                typeof(Hooks).GetMethod("FoyerCallbacks")
-            );
-            Hook languageManagerHook = new Hook(
-                typeof(dfControl).GetMethod("getLocalizedValue", BindingFlags.NonPublic | BindingFlags.Instance),
-                typeof(Hooks).GetMethod("DFGetLocalizedValue")
-            );
-
-            var braveSETypes = new Type[]
+            try
             {
-                typeof(string),
-                typeof(string),
-            };
-            Hook braveLoad = new Hook(
-                typeof(BraveResources).GetMethod("Load", BindingFlags.Public | BindingFlags.Static, null, braveSETypes, null),
-                typeof(Hooks).GetMethod("BraveLoadObject")
-            );
+                Hook lateStartHook = new Hook(
+                    typeof(Foyer).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance),
+                    typeof(CustomCharactersModule).GetMethod("LateStart")
+                );
 
-            Hook playerSwitchHook = new Hook(
-                typeof(Foyer).GetMethod("PlayerCharacterChanged", BindingFlags.Public | BindingFlags.Instance),
-                typeof(Hooks).GetMethod("OnPlayerChanged")
-            );
+                Hook punchoutUIHook = new Hook(
+                    typeof(PunchoutPlayerController).GetMethod("UpdateUI", BindingFlags.Public | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("PunchoutUpdateUI")
+                );
 
-            Hook clearPlayerHook = new Hook(
-                typeof(GameManager).GetMethod("ClearPrimaryPlayer", BindingFlags.Public | BindingFlags.Instance),
-                typeof(Hooks).GetMethod("OnPlayerCleared")
-            );
+                Hook foyerCallbacksHook = new Hook(
+                    typeof(Foyer).GetMethod("SetUpCharacterCallbacks", BindingFlags.NonPublic | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("FoyerCallbacks")
+                );
+                Hook languageManagerHook = new Hook(
+                    typeof(dfControl).GetMethod("getLocalizedValue", BindingFlags.NonPublic | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("DFGetLocalizedValue")
+                );
+
+                var braveSETypes = new Type[]
+                {
+                    typeof(string),
+                    typeof(string),
+                };
+                Hook braveLoad = new Hook(
+                    typeof(BraveResources).GetMethod("Load", BindingFlags.Public | BindingFlags.Static, null, braveSETypes, null),
+                    typeof(Hooks).GetMethod("BraveLoadObject")
+                );
+
+                Hook playerSwitchHook = new Hook(
+                    typeof(Foyer).GetMethod("PlayerCharacterChanged", BindingFlags.Public | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("OnPlayerChanged")
+                );
+
+                Hook clearP1Hook = new Hook(
+                    typeof(ETGModConsole).GetMethod("SwitchCharacter", BindingFlags.NonPublic | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("PrimaryPlayerSwitched")
+                );
+
+                Hook clearP2Hook = new Hook(
+                    typeof(GameManager).GetMethod("ClearSecondaryPlayer", BindingFlags.Public | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("OnP2Cleared")
+                );
+            }
+            catch (Exception e)
+            {
+                Tools.PrintException(e);
+            }
         }
 
         //Hook for Punchout UI being updated (called when UI updates)
@@ -79,6 +91,7 @@ namespace CustomCharacters
         {
             var sortedByX = orig(self);
 
+            RandomShrine.BuildCharacterList(sortedByX);
             FoyerCharacterHandler.AddCustomCharactersToFoyer(sortedByX);
 
             return sortedByX;
@@ -115,23 +128,55 @@ namespace CustomCharacters
 
         public static void OnPlayerChanged(Action<Foyer, PlayerController> orig, Foyer self, PlayerController player)
         {
-            ResetCustomCharacters();
+            ResetInfiniteGuns();
             orig(self, player);
         }
 
-        public static void OnPlayerCleared(Action<GameManager> orig, GameManager self)
+        public static void OnP2Cleared(Action<GameManager> orig, GameManager self)
         {
-            ResetCustomCharacters();
             orig(self);
+            ResetInfiniteGuns();
+        }
+
+        public static void PrimaryPlayerSwitched(Action<ETGModConsole, string[]> orig, ETGModConsole self, string[] args)
+        {
+            try
+            {
+                orig(self, args);
+            }
+            catch { }
+            ResetInfiniteGuns();
         }
 
         //Resets all the character-specific infinite guns 
-        public static void ResetCustomCharacters()
+        public static Dictionary<int, GunBackupData> gunBackups = new Dictionary<int, GunBackupData>();
+        public static void ResetInfiniteGuns()
         {
-            foreach (var gun in CharacterBuilder.guns)
+            var player1 = GameManager.Instance?.PrimaryPlayer?.GetComponent<CustomCharacter>();
+            var player2 = GameManager.Instance?.SecondaryPlayer?.GetComponent<CustomCharacter>();
+            List<int> removables = new List<int>();
+            foreach (var entry in gunBackups)
             {
-                gun.InfiniteAmmo = false;
+                if ((player1 && player1.GetInfiniteGunIDs().Contains(entry.Key)) || (player2 && player2.GetInfiniteGunIDs().Contains(entry.Key))) continue;
+                var gun = PickupObjectDatabase.GetById(entry.Key) as Gun;
+                gun.InfiniteAmmo = entry.Value.InfiniteAmmo;
+                gun.CanBeDropped = entry.Value.CanBeDropped;
+                gun.PersistsOnDeath = entry.Value.PersistsOnDeath;
+                gun.PreventStartingOwnerFromDropping = entry.Value.PreventStartingOwnerFromDropping;
+                removables.Add(entry.Key);
+                Tools.Print($"Reset {gun.EncounterNameOrDisplayName} to infinite = {gun.InfiniteAmmo}");
             }
+            foreach (var id in removables)
+                gunBackups.Remove(id);
+
+        }
+
+        public struct GunBackupData
+        {
+            public bool InfiniteAmmo,
+                CanBeDropped,
+                PersistsOnDeath,
+                PreventStartingOwnerFromDropping;
         }
     }
 }

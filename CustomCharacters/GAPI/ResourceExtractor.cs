@@ -8,12 +8,11 @@ using UnityEngine;
 using System.Reflection;
 using System.Diagnostics;
 
-namespace CustomCharacters
+namespace GungeonAPI
 {
     public static class ResourceExtractor
     {
         private static string spritesDirectory = Path.Combine(ETGMod.ResourcesDirectory, "sprites");
-        private static string nameSpace = "Gungeon";
         /// <summary>
         /// Converts all png's in a folder to a list of Texture2D objects
         /// </summary>
@@ -39,10 +38,10 @@ namespace CustomCharacters
         /// <summary>
         /// Creates a Texture2D from a file in the sprites directory
         /// </summary>
-        public static Texture2D GetTextureFromFile(string fileName)
+        public static Texture2D GetTextureFromFile(string fileName, string extension = ".png")
         {
-            fileName = fileName.Replace(".png", "");
-            string filePath = Path.Combine(spritesDirectory, fileName + ".png");
+            fileName = fileName.Replace(extension, "");
+            string filePath = Path.Combine(spritesDirectory, fileName + extension);
             if (!File.Exists(filePath))
             {
                 Tools.PrintError(filePath + " not found.");
@@ -83,9 +82,7 @@ namespace CustomCharacters
 
         public static string[] GetLinesFromEmbeddedResource(string filePath)
         {
-            filePath = filePath.Replace("/", ".");
-            filePath = filePath.Replace("\\", ".");
-            string allLines = BytesToString(ExtractEmbeddedResource($"{nameSpace}." + filePath));
+            string allLines = BytesToString(ExtractEmbeddedResource(filePath));
             return allLines.Split('\n');
         }
 
@@ -121,10 +118,12 @@ namespace CustomCharacters
         /// <summary>
         /// Converts an embedded resource to a byte array
         /// </summary>
-        public static byte[] ExtractEmbeddedResource(String filename)
+        public static byte[] ExtractEmbeddedResource(String filePath)
         {
+            filePath = filePath.Replace("/", ".");
+            filePath = filePath.Replace("\\", ".");
             var baseAssembly = Assembly.GetCallingAssembly();
-            using (Stream resFilestream = baseAssembly.GetManifestResourceStream(filename))
+            using (Stream resFilestream = baseAssembly.GetManifestResourceStream(filePath))
             {
                 if (resFilestream == null)
                 {
@@ -142,18 +141,16 @@ namespace CustomCharacters
         public static Texture2D GetTextureFromResource(string resourceName)
         {
             string file = resourceName;
-            file = file.Replace("/", ".");
-            file = file.Replace("\\", ".");
-            byte[] bytes = ExtractEmbeddedResource($"{nameSpace}." + file);
+            byte[] bytes = ExtractEmbeddedResource(file);
             if (bytes == null)
             {
                 Tools.PrintError("No bytes found in " + file);
                 return null;
             }
-            Texture2D texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+            Texture2D texture = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
             ImageConversion.LoadImage(texture, bytes);
             texture.filterMode = FilterMode.Point;
-    
+
             string name = file.Substring(0, file.LastIndexOf('.'));
             if (name.LastIndexOf('.') >= 0)
             {

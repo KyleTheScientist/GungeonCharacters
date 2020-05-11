@@ -6,6 +6,7 @@ using System.IO;
 
 using StatType = PlayerStats.StatType;
 using UnityEngine;
+using GungeonAPI;
 
 namespace CustomCharacters
 {
@@ -332,9 +333,6 @@ namespace CustomCharacters
                     {
                         if (!CharacterBuilder.guns.Contains(gun) && !gun.InfiniteAmmo)
                             CharacterBuilder.guns.Add(gun);
-
-                        gun.InfiniteAmmo = true;
-                        gun.LocalInfiniteAmmo = true;
 
                         items.Add(new Tuple<PickupObject, bool>(item, true));
                         Tools.Print("    " + item.EncounterNameOrDisplayName + " (infinite)");

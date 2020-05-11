@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 
 using UnityEngine;
+using GungeonAPI;
 
 namespace CustomCharacters
 {
@@ -145,8 +146,6 @@ namespace CustomCharacters
                     clip.frames[i].spriteCollection = copyCollection;
                 }
             }
-
-
 
             copyCollection.name = player.OverrideDisplayName;
 

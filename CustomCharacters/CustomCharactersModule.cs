@@ -5,12 +5,14 @@ using System.Text;
 using System.Reflection;
 
 using UnityEngine;
+using GungeonAPI;
+
 namespace CustomCharacters
 {
     //Main module
     public class CustomCharactersModule : ETGModule
     {
-        public readonly static string version = "2.0.3";
+        public readonly static string version = "2.2.1";
         private static bool hasInitialized;
         public override void Start()
         {
@@ -18,7 +20,7 @@ namespace CustomCharacters
             Tools.Init();
             Hooks.Init();
             CharacterSwitcher.Init();
-
+            ShrineFactory.Init();
             Tools.Print("Did Start()", "00FF00");
         }
 
@@ -31,6 +33,8 @@ namespace CustomCharacters
             if (hasInitialized) return;
             Tools.StartTimer("Initializing mod");
             Loader.Init();
+            Franseis.Add();
+            RandomShrine.Add();
             Tools.StopTimerAndReport("Initializing mod");
             hasInitialized = true;
             Tools.Print($"Custom Character Mod v{version} Initialized", "00FF00", true);
@@ -39,6 +43,7 @@ namespace CustomCharacters
             {
                 Tools.Print("    " + character.Value.First.nameShort, "00FF55", true);
             }
+            ShrineFactory.PlaceBreachShrines();
         }
 
         public override void Exit()

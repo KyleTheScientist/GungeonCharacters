@@ -5,8 +5,10 @@ using System.Text;
 using System.Reflection;
 
 using UnityEngine;
+using GungeonAPI;
 using MonoMod.RuntimeDetour;
 using HutongCharacter = HutongGames.PlayMaker.Actions.ChangeToNewCharacter;
+
 namespace CustomCharacters
 
 {
@@ -17,17 +19,19 @@ namespace CustomCharacters
 
         private static Vector3[] foyerPositions =
         {
+            new Vector3(46.3f, 17.6f, 18.1f),
             new Vector3(46.7f, 21.1f, 21.6f),
             new Vector3(48.3f, 23.5f, 24.0f),
             new Vector3(53.9f, 23.5f, 24.0f),
-            new Vector3(55.1f, 18.6f, 19.1f),
-            new Vector3(46.3f, 17.6f, 18.1f),
-            new Vector3(62.9f, 23.3f, 23.8f),
+            new Vector3(55.1f, 17f, 19.1f),
             new Vector3(61.1f, 18.4f, 18.9f),
+            //new Vector3(62.9f, 23.3f, 23.8f),
             new Vector3(42.5f, 20.8f, 21.3f),
             new Vector3(47.6f, 35.5f, 36.0f),
             new Vector3(54.8f, 38.6f, 39.1f),
 
+            new Vector3(30.6f, 34.6f, 35.1f),
+            new Vector3(30.6f, 37.2f, 37.7f),
             new Vector3(30.6f, 39.8f, 40.3f),
             new Vector3(30.6f, 44.8f, 45.3f),
             new Vector3(30.6f, 47.4f, 47.9f),
@@ -39,11 +43,9 @@ namespace CustomCharacters
             new Vector3(43.8f, 47.4f, 47.9f),
 
             new Vector3(24.3f, 57.7f, 58.2f),
+            //new Vector3(31.6f, 57.4f, 57.9f),
+            //new Vector3(43.4f, 57.6f, 58.1f),
             new Vector3(50.4f, 58.2f, 58.7f),
-            new Vector3(31.6f, 57.4f, 57.9f),
-            new Vector3(43.4f, 57.6f, 58.1f),
-            new Vector3(30.6f, 34.6f, 35.1f),
-            new Vector3(30.6f, 37.2f, 37.7f),
         };
 
         public static void Init()
