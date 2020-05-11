@@ -31,20 +31,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\ModBackup\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp.Base.mm">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\Assembly-CSharp.Base.mm.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\Assembly-CSharp.Base.mm.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>..\..\..\ref\MonoMod.RuntimeDetour.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\MonoMod.Utils.dll</HintPath>
+      <HintPath>..\..\..\ref\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="PlayMaker, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\PlayMaker.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\PlayMaker.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,22 +56,22 @@
       <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\ModBackup\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule.Base.mm">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\UnityEngine.CoreModule.Base.mm.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\UnityEngine.CoreModule.Base.mm.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Enter the Gungeon\EtG_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>..\..\Semi\Semi\Semi\bin\Debug\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\..\..\Desktop\Code stuff\Mod The Gungeon\Gungeon\Dependencies\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Enter the Gungeon\EtG_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -255,7 +255,7 @@ namespace CustomCharacters
                     var def = copyCollection.GetSpriteDefinition(tex.name);
 
 					if (def != null) {
-						Tools.ReplaceTexture(def, tex);
+						def.ReplaceTexture(tex);
 						Console.WriteLine($"REPLACED {def.name} {def.material.mainTexture.width} {def.material.mainTexture.height}");
 					}
                 }
