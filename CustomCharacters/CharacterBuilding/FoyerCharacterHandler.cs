@@ -50,10 +50,10 @@ namespace CustomCharacters
 
         public static void Init()
         {
-            ETGModConsole.Commands.AddUnit("pos", s =>
-            {
-                Tools.Print(GameManager.Instance.PrimaryPlayer.transform.position, "55AAFF", true);
-            });
+            //ETGModConsole.Commands.AddUnit("pos", s =>
+            //{
+            //    Tools.Print(GameManager.Instance.PrimaryPlayer.transform.position, "55AAFF", true);
+            //});
 
             Hook overheadElemAppearHook = new Hook(
                 typeof(TalkDoerLite).GetMethod("CreateOverheadUI", BindingFlags.Instance | BindingFlags.NonPublic),
@@ -254,8 +254,10 @@ namespace CustomCharacters
                     var tex = data.foyerCardSprites[i];
                     var def = copyCollection.GetSpriteDefinition(tex.name);
 
-                    if (def != null)
-                        def.ReplaceTexture(tex);
+					if (def != null) {
+						Tools.ReplaceTexture(def, tex);
+						Console.WriteLine($"REPLACED {def.name} {def.material.mainTexture.width} {def.material.mainTexture.height}");
+					}
                 }
                 facecard.sprite.Collection = copyCollection;
 
@@ -268,6 +270,19 @@ namespace CustomCharacters
                         clip.frames[i].spriteCollection = copyCollection;
                     }
                 }
+
+				Console.WriteLine($"FOYERCARDDBG");
+				for (int i = 0; i < copyCollection.spriteDefinitions.Length; i++)
+				{
+					var def = copyCollection.spriteDefinitions[i];
+					Console.WriteLine(def.name);
+					if (!def.name.Contains("facecard")) continue;
+
+					Console.WriteLine("FACECARD");
+					Console.WriteLine($"{def.material.mainTexture.width} {def.material.mainTexture.height} {def.uvs[0].x},{def.uvs[0].y} {def.uvs[1].x},{def.uvs[1].y} {def.uvs[2].x},{def.uvs[2].y} {def.uvs[3].x},{def.uvs[3].y} ");
+
+
+				}
             }
             selectCharacter.OverheadElement.SetActive(false);
         }

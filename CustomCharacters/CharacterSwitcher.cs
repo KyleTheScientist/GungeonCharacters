@@ -22,28 +22,29 @@ namespace CustomCharacters
 
         public static void Init()
         {
-            ETGModConsole.Commands.AddUnit("character2", SwitchSecondaryCharacter);
-            ETGModConsole.Commands.AddUnit("braveInput", (s) =>
-            {
-                var braveInstances = (Dictionary<int, BraveInput>)m_instances.GetValue(null);
-                foreach (var instance in braveInstances)
-                {
-                    Tools.Print(instance.Key + ": " + instance.Value, "FFFF00");
-                }
+			return; // stubbed
+            //ETGModConsole.Commands.AddUnit("character2", SwitchSecondaryCharacter);
+            //ETGModConsole.Commands.AddUnit("braveInput", (s) =>
+            //{
+            //    var braveInstances = (Dictionary<int, BraveInput>)m_instances.GetValue(null);
+            //    foreach (var instance in braveInstances)
+            //    {
+            //        Tools.Print(instance.Key + ": " + instance.Value, "FFFF00");
+            //    }
 
-                var pls = GameManager.Instance.AllPlayers;
-                for (int i = 0; i < pls.Length; i++)
-                {
-                    var player = pls[i];
-                    Tools.Print($"Player {i}: " + player.name + ": " + player.PlayerIDX, "00FFFF");
-                }
+            //    var pls = GameManager.Instance.AllPlayers;
+            //    for (int i = 0; i < pls.Length; i++)
+            //    {
+            //        var player = pls[i];
+            //        Tools.Print($"Player {i}: " + player.name + ": " + player.PlayerIDX, "00FFFF");
+            //    }
 
-                List<PlayerController> list = new List<PlayerController>(UnityEngine.Object.FindObjectsOfType<PlayerController>());
-                for (int j = 0; j < list.Count; j++)
-                {
-                    Tools.Print(list[j], "FF00FF");
-                }
-            });
+            //    List<PlayerController> list = new List<PlayerController>(UnityEngine.Object.FindObjectsOfType<PlayerController>());
+            //    for (int j = 0; j < list.Count; j++)
+            //    {
+            //        Tools.Print(list[j], "FF00FF");
+            //    }
+            //});
         }
 
         public static void SwitchSecondaryCharacter(string[] args)
