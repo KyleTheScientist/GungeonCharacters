@@ -19,6 +19,21 @@ namespace CustomCharacters
         {
             try
             {
+                Hook getNicknamehook = new Hook(
+                    typeof(StringTableManager).GetMethod("GetTalkingPlayerNick", BindingFlags.NonPublic | BindingFlags.Static),
+                    typeof(Hooks).GetMethod("GetTalkingPlayerNickHook")
+                );
+
+                Hook getNamehook = new Hook(
+                    typeof(StringTableManager).GetMethod("GetTalkingPlayerName", BindingFlags.NonPublic | BindingFlags.Static),
+                    typeof(Hooks).GetMethod("GetTalkingPlayerNameHook")
+                );
+
+                Hook getValueHook = new Hook(
+                    typeof(dfLanguageManager).GetMethod("GetValue", BindingFlags.Public | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("GetValueHook")
+                );
+
                 Hook lateStartHook = new Hook(
                     typeof(Foyer).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance),
                     typeof(CustomCharactersModule).GetMethod("LateStart")
@@ -62,6 +77,7 @@ namespace CustomCharacters
                     typeof(GameManager).GetMethod("ClearSecondaryPlayer", BindingFlags.Public | BindingFlags.Instance),
                     typeof(Hooks).GetMethod("OnP2Cleared")
                 );
+
             }
             catch (Exception e)
             {
@@ -84,6 +100,87 @@ namespace CustomCharacters
                     Tools.Print(self.PlayerUiSprite.SpriteName);
                 }
             }
+        }
+
+        public static string GetTalkingPlayerNickHook(Func<string> orig)
+        {
+            PlayerController talkingPlayer = Hooks.GetTalkingPlayer();
+            if (talkingPlayer.IsThief)
+            {
+                return "#THIEF_NAME";
+            }
+            if(talkingPlayer.GetComponent<CustomCharacter>() != null)
+            {
+                if (talkingPlayer.GetComponent<CustomCharacter>().data != null)
+                {
+                    return "#PLAYER_NICK_" + talkingPlayer.GetComponent<CustomCharacter>().data.nameShort.ToUpper();
+                }
+            }
+            if (talkingPlayer.characterIdentity == PlayableCharacters.Eevee)
+            {
+                return "#PLAYER_NICK_RANDOM";
+            }
+            if (talkingPlayer.characterIdentity == PlayableCharacters.Gunslinger)
+            {
+                return "#PLAYER_NICK_GUNSLINGER";
+            }
+            return "#PLAYER_NICK_" + talkingPlayer.characterIdentity.ToString().ToUpperInvariant();
+        }
+
+        public static string GetValueHook(Func<dfLanguageManager, string, string> orig, dfLanguageManager self, string key)
+        {
+            if (characterDeathNames.Contains(key))
+            {
+                if(GameManager.Instance.PrimaryPlayer != null && GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>() != null && GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>().data != null)
+                {
+                    return GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>().data.name;
+                }
+            }
+            return orig(self, key);
+        }
+
+        public static string GetTalkingPlayerNameHook(Func<string> orig)
+        {
+            PlayerController talkingPlayer = Hooks.GetTalkingPlayer();
+            if (talkingPlayer.IsThief)
+            {
+                return "#THIEF_NAME";
+            }
+            if (talkingPlayer.GetComponent<CustomCharacter>() != null)
+            {
+                if (talkingPlayer.GetComponent<CustomCharacter>().data != null)
+                {
+                    return "#PLAYER_NAME_" + talkingPlayer.GetComponent<CustomCharacter>().data.nameShort.ToUpper();
+                }
+            }
+            if (talkingPlayer.characterIdentity == PlayableCharacters.Eevee)
+            {
+                return "#PLAYER_NAME_RANDOM";
+            }
+            if (talkingPlayer.characterIdentity == PlayableCharacters.Gunslinger)
+            {
+                return "#PLAYER_NAME_GUNSLINGER";
+            }
+            return "#PLAYER_NAME_" + talkingPlayer.characterIdentity.ToString().ToUpperInvariant();
+        }
+
+        private static PlayerController GetTalkingPlayer()
+        {
+            List<TalkDoerLite> allNpcs = StaticReferenceManager.AllNpcs;
+            for (int i = 0; i < allNpcs.Count; i++)
+            {
+                if (allNpcs[i])
+                {
+                    if (!allNpcs[i].IsTalking || !allNpcs[i].TalkingPlayer || GameManager.Instance.HasPlayer(allNpcs[i].TalkingPlayer))
+                    {
+                        if (allNpcs[i].IsTalking && allNpcs[i].TalkingPlayer)
+                        {
+                            return allNpcs[i].TalkingPlayer;
+                        }
+                    }
+                }
+            }
+            return GameManager.Instance.PrimaryPlayer;
         }
 
         //Triggers FoyerCharacterHandler (called from Foyer.SetUpCharacterCallbacks)
@@ -170,6 +267,19 @@ namespace CustomCharacters
                 gunBackups.Remove(id);
 
         }
+
+        public static List<string> characterDeathNames = new List<string>
+        {
+            "#CHAR_ROGUE_SHORT",
+            "#CHAR_CONVICT_SHORT",
+            "#CHAR_ROBOT_SHORT",
+            "#CHAR_MARINE_SHORT",
+            "#CHAR_GUIDE_SHORT",
+            "#CHAR_CULTIST_SHORT",
+            "#CHAR_BULLET_SHORT",
+            "#CHAR_PARADOX_SHORT",
+            "#CHAR_GUNSLINGER_SHORT"
+        };
 
         public struct GunBackupData
         {
