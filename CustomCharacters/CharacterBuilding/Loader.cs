@@ -7,6 +7,7 @@ using System.IO;
 using StatType = PlayerStats.StatType;
 using UnityEngine;
 using GungeonAPI;
+using Ionic.Zip;
 
 namespace CustomCharacters
 {
@@ -59,11 +60,16 @@ namespace CustomCharacters
         //Finds sprite folders, sprites, and characterdata.txt (and parses it)
         public static void LoadCharacterData()
         {
+            LoadDirectories();
+            LoadZips();
+        }
+
+        private static void LoadDirectories()
+        {
             var directories = Directory.GetDirectories(CharacterDirectory);
             Tools.Print("# of character folders found: " + directories.Length);
             for (int i = 0; i < directories.Length; i++)
             {
-
                 Tools.StartTimer("Loading data for " + Path.GetFileName(directories[i]));
                 Tools.Print("");
                 Tools.Print("--Loading " + Path.GetFileName(directories[i]) + "--", "0000FF");
@@ -144,6 +150,157 @@ namespace CustomCharacters
                 characterData.Add(data);
                 Tools.StopTimerAndReport("Loading data for " + Path.GetFileName(directories[i]));
             }
+        }
+
+        private static void LoadZips()
+        {
+            var zipFiles = Directory.GetFiles(CharacterDirectory, "*.zip", SearchOption.TopDirectoryOnly);
+            Tools.Print("# of character zip files found: " + zipFiles.Length);
+            foreach (string zipFilePath in zipFiles)
+            {
+                string fileName = Path.GetFileName(zipFilePath);
+                Tools.StartTimer("Loading data for " + fileName);
+                try
+                {
+                    Tools.Print("");
+                    Tools.Print("--Loading " + fileName + "--", "0000FF");
+
+                    using (var zip = ZipFile.Read(zipFilePath))
+                    {
+                        foreach (var entry in zip)
+                        {
+                            if (string.Equals(Path.GetFileName(entry.FileName), DataFile, StringComparison.OrdinalIgnoreCase))
+                            {
+                                var ccd = ProcessCharacteryEntry(zip, entry);
+                                if (ccd != null)
+                                {
+                                    characterData.Add(ccd);
+                                    Tools.Print($"Loaded {ccd.name} from {fileName}");
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Tools.Print($"Error loading character zip: {e}");
+                }
+                finally
+                {
+                    Tools.StopTimerAndReport("Loading data for " + fileName);
+                }
+            }
+        }
+
+        private static CustomCharacterData ProcessCharacteryEntry(ZipFile zipFile, ZipEntry dataFileEntry)
+        {
+            var lines = dataFileEntry.ReadAllLines();
+            var data = ParseCharacterData(lines);
+
+            string customCharacterDir = Path.GetDirectoryName(dataFileEntry.FileName);
+            string customCharacterDirFilter = customCharacterDir + "/";
+
+            var directories = new Dictionary<string, List<Texture2D>>()
+            {
+                { customCharacterDir, null },
+                { $"{customCharacterDir}/sprites", null },
+                { $"{customCharacterDir}/foyercard", null },
+                { $"{customCharacterDir}/punchout", null },
+                { $"{customCharacterDir}/punchout/sprites", null }
+            };
+
+            foreach (var entry in zipFile)
+            {
+                if (!entry.FileName.StartsWith(customCharacterDirFilter, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (!entry.FileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                byte[] textureData = entry.ReadAllBytes();
+                string fileName = Path.GetFileName(entry.FileName);
+                string resourceName = fileName.Substring(0, fileName.Length - 4);
+                Texture2D texture = ResourceExtractor.BytesToTexture(textureData, resourceName);
+
+                string directoryName = Path.GetDirectoryName(entry.FileName);
+                if (directories.TryGetValue(directoryName, out var list))
+                {
+                    if (list == null)
+                    {
+                        list = new List<Texture2D>();
+                        directories[directoryName] = list;
+                    }
+
+                    list.Add(texture);
+                }
+                else
+                {
+                    Tools.Print($"Skipped loading {entry.FileName} in {zipFile.Name}");
+                }
+            }
+
+            List<Texture2D> textures;
+            if (directories.TryGetValue($"{customCharacterDir}/sprites", out textures) && textures != null)
+            {
+                Tools.Print("Found: Sprites folder");
+                data.sprites = textures;
+            }
+
+            if (directories.TryGetValue($"{customCharacterDir}/foyercard", out textures) && textures != null)
+            {
+                Tools.Print("Found: Foyer card folder");
+                data.foyerCardSprites = textures;
+            }
+
+            if (directories.TryGetValue(customCharacterDir, out textures) && textures != null)
+            {
+                foreach (var tex in textures)
+                {
+                    string name = tex.name.ToLower();
+                    if (name.Equals("icon"))
+                    {
+                        Tools.Print("Found: Icon ");
+                        data.minimapIcon = tex;
+                    }
+                    if (name.Equals("bosscard"))
+                    {
+                        Tools.Print("Found: Bosscard");
+                        data.bossCard = tex;
+                    }
+                    if (name.Equals("playersheet"))
+                    {
+                        Tools.Print("Found: Playersheet");
+                        data.playerSheet = tex;
+                    }
+                    if (name.Equals("facecard"))
+                    {
+                        Tools.Print("Found: Facecard");
+                        data.faceCard = tex;
+                    }
+                }
+            }
+
+            if (directories.TryGetValue($"{customCharacterDir}/punchout/sprites", out textures) && textures != null)
+            {
+                Tools.Print("Found: Punchout Sprites folder");
+                data.punchoutSprites = textures;
+            }
+
+            if (directories.TryGetValue($"{customCharacterDir}/punchout", out textures) && textures != null)
+            {
+                data.punchoutFaceCards = new List<Texture2D>();
+                foreach (var tex in textures)
+                {
+                    string name = tex.name.ToLower();
+                    if (name.Contains("facecard1") || name.Contains("facecard2") || name.Contains("facecard3"))
+                    {
+                        data.punchoutFaceCards.Add(tex);
+                        Tools.Print("Found: Punchout facecard " + tex.name);
+                    }
+                }
+            }
+
+            return data;
         }
 
         //Main parse loop
