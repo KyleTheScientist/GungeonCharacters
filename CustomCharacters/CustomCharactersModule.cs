@@ -31,7 +31,7 @@ namespace CustomCharacters
             Tools.Print("Did Start()", "00FF00");
         }
         //Creates characters late to prevent conflict with custom loadouts and stuff
-        public static void LateStart(On.Foyer.orig_Awake orig, Foyer self)
+        public static void LateStart(Action<Foyer> orig, Foyer self)
         {
             orig(self);
 
