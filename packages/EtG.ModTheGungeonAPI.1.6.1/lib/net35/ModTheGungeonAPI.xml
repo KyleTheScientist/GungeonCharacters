@@ -21,6 +21,16 @@
             ETGMod asset management.
             </summary>
         </member>
+        <member name="F:ETGMod.Assets.DEFINITION_METADATA_EXTENSION">
+            <summary>
+            The extension for tk2dSpriteDefinition metadata files, without the . at the start.
+            </summary>
+        </member>
+        <member name="F:ETGMod.Assets.FULL_DEFINITION_METADATA_EXTENSION">
+            <summary>
+            The extension for tk2dSpriteDefinition metadata files, with the . at the start.
+            </summary>
+        </member>
         <member name="P:ETGMod.Assets.Collections">
             <summary>
             All loaded sprite collections.
@@ -327,6 +337,17 @@
             Sprite collection used by items.
             </summary>
         </member>
+        <member name="M:ItemDB.AddSpecific(System.Boolean,PickupObject,System.Boolean,System.String)">
+            <summary>
+            Adds an item to the list of items in the game.
+            </summary>
+            <param name="proxy">Whether the EncounterDatabaseEntry assigned to the item should be proxy or not. If an encounter database entry is proxy, the item's EncounterTrackable will get all of its values from the proxy 
+            EncounterDatabaseEntry.</param>
+            <param name="value">The item to add.</param>
+            <param name="dontDestroyOnLoad">If true, the item won't be destroyed when a scene is loaded. Only use for fake prefab items.</param>
+            <param name="floor">The floor to the fallback loot table of which the gun will be added.</param>
+            <returns>The id of the added item.</returns>
+        </member>
         <member name="M:ItemDB.AddSpecific(PickupObject,System.Boolean,System.String)">
             <summary>
             Adds an item to the list of items in the game.
@@ -410,19 +431,24 @@
             The string table that has all of the text in the intro.
             </summary>
         </member>
-        <member name="F:StringDB.UI">
-            <summary>
-            The string table that has ui text. Unused in the base game.
-            </summary>
-        </member>
         <member name="F:StringDB.Synergy">
             <summary>
             The string table that has all of the synergy names.
             </summary>
         </member>
+        <member name="F:StringDB.UI">
+            <summary>
+            The string table that has all of the UI text.
+            </summary>
+        </member>
         <member name="F:StringDB.OnLanguageChanged">
             <summary>
-            
+            Runs when the game's language is changed.
+            </summary>
+        </member>
+        <member name="F:StringDB.OnUILanguageChanged">
+            <summary>
+            Runs for each UI language manager when the game's language is changed or when a UI language manager is created.
             </summary>
         </member>
         <member name="T:StringDBTable">
@@ -462,10 +488,37 @@
             <param name="key">The key to the string.</param>
             <param name="value">The new value for the string.</param>
         </member>
+        <member name="M:StringDBTable.SetComplex(System.String,System.String[])">
+            <summary>
+            Sets a string with the given key to the given values that all have the weight 1.
+            </summary>
+            <param name="key">The key to the string.</param>
+            <param name="values">The new values for the string that all have the weight 1.</param>
+        </member>
+        <member name="M:StringDBTable.SetComplex(System.String,Tuple{System.String,System.Single}[])">
+            <summary>
+            Sets a string with the given key to the given values.
+            </summary>
+            <param name="key">The key to the string.</param>
+            <param name="values">The new values and weights for the string where the strings are values and floats are weights.</param>
+        </member>
         <member name="M:StringDBTable.LanguageChanged">
             <summary>
             Reloads the table and reapplies all of the changes made.
             </summary>
+        </member>
+        <member name="M:UIStringDBTable.LanguageChanged(dfLanguageManager)">
+            <summary>
+            Reapplies all of the changes made to the given manager.
+            </summary>
+            <param name="man">The manager to reapply the changes to.</param>
+        </member>
+        <member name="M:UIStringDBTable.Set(System.String,System.String)">
+            <summary>
+            Sets a string with the given key to the given value.
+            </summary>
+            <param name="key">The key to the string.</param>
+            <param name="value">The new value for the string.</param>
         </member>
         <member name="F:ETGModConsole.ModdedChests">
             <summary>

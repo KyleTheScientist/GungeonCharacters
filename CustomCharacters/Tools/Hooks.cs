@@ -18,20 +18,64 @@ namespace CustomCharacters
         {
             try
             {
-                On.StringTableManager.GetTalkingPlayerNick += StringTableManager_GetTalkingPlayerNick;
-                On.StringTableManager.GetTalkingPlayerName += StringTableManager_GetTalkingPlayerName;
-                On.dfLanguageManager.GetValue += DfLanguageManager_GetValue;
-                On.Foyer.Awake += CustomCharactersModule.LateStart;
-                On.PunchoutPlayerController.UpdateUI += PunchoutPlayerController_UpdateUI;
-                On.Foyer.SetUpCharacterCallbacks += Foyer_SetUpCharacterCallbacks;
-                On.dfControl.getLocalizedValue += DfControl_getLocalizedValue;
-                On.BraveResources.Load_string_string += BraveResources_Load_string_string;
-                On.Foyer.PlayerCharacterChanged += Foyer_PlayerCharacterChanged;
-                On.GameManager.ClearSecondaryPlayer += GameManager_ClearSecondaryPlayer;
+                Hook getNicknamehook = new Hook(
+                    typeof(StringTableManager).GetMethod("GetTalkingPlayerNick", BindingFlags.NonPublic | BindingFlags.Static),
+                    typeof(Hooks).GetMethod("GetTalkingPlayerNickHook")
+                );
+
+
+                Hook getNamehook = new Hook(
+                    typeof(StringTableManager).GetMethod("GetTalkingPlayerName", BindingFlags.NonPublic | BindingFlags.Static),
+                    typeof(Hooks).GetMethod("GetTalkingPlayerNameHook")
+                );
+
+                Hook getValueHook = new Hook(
+                    typeof(dfLanguageManager).GetMethod("GetValue", BindingFlags.Public | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("GetValueHook")
+                );
+
+                Hook lateStartHook = new Hook(
+                    typeof(Foyer).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance),
+                    typeof(CustomCharactersModule).GetMethod("LateStart")
+                );
+
+                Hook punchoutUIHook = new Hook(
+                    typeof(PunchoutPlayerController).GetMethod("UpdateUI", BindingFlags.Public | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("PunchoutUpdateUI")
+                );
+
+                Hook foyerCallbacksHook = new Hook(
+                    typeof(Foyer).GetMethod("SetUpCharacterCallbacks", BindingFlags.NonPublic | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("FoyerCallbacks")
+                );
+                Hook languageManagerHook = new Hook(
+                    typeof(dfControl).GetMethod("getLocalizedValue", BindingFlags.NonPublic | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("DFGetLocalizedValue")
+                );
+
+                var braveSETypes = new Type[]
+                {
+                    typeof(string),
+                    typeof(string),
+                };
+                Hook braveLoad = new Hook(
+                    typeof(BraveResources).GetMethod("Load", BindingFlags.Public | BindingFlags.Static, null, braveSETypes, null),
+                    typeof(Hooks).GetMethod("BraveLoadObject")
+                );
+
+                Hook playerSwitchHook = new Hook(
+                    typeof(Foyer).GetMethod("PlayerCharacterChanged", BindingFlags.Public | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("OnPlayerChanged")
+                );
 
                 Hook clearP1Hook = new Hook(
                     typeof(ETGModConsole).GetMethod("SwitchCharacter", BindingFlags.Public | BindingFlags.Static),
                     typeof(Hooks).GetMethod("PrimaryPlayerSwitched")
+                );
+
+                Hook clearP2Hook = new Hook(
+                    typeof(GameManager).GetMethod("ClearSecondaryPlayer", BindingFlags.Public | BindingFlags.Instance),
+                    typeof(Hooks).GetMethod("OnP2Cleared")
                 );
 
             }
@@ -40,56 +84,9 @@ namespace CustomCharacters
                 Tools.PrintException(e);
             }
         }
-        private static void GameManager_ClearSecondaryPlayer(On.GameManager.orig_ClearSecondaryPlayer orig, GameManager self)
-        {
-            orig(self);
-            ResetInfiniteGuns();
-        }
 
-        private static void Foyer_PlayerCharacterChanged(On.Foyer.orig_PlayerCharacterChanged orig, Foyer self, PlayerController newCharacter)
-        {
-            ResetInfiniteGuns();
-            orig(self, newCharacter);
-        }
-
-        private static object BraveResources_Load_string_string(On.BraveResources.orig_Load_string_string orig, string path, string extension)
-        {
-            var value = orig(path, extension);
-            if (value == null)
-            {
-                path = path.ToLower();
-                if (CharacterBuilder.storedCharacters.ContainsKey(path))
-                {
-                    var character = CharacterBuilder.storedCharacters[path].Second;
-                    return character;
-                }
-            }
-            return value;
-        }
-
-        private static string DfControl_getLocalizedValue(On.dfControl.orig_getLocalizedValue orig, dfControl self, string key)
-        {
-            foreach (var pair in StringHandler.customStringDictionary)
-            {
-                if (pair.Key.ToLower() == key.ToLower())
-                {
-                    return pair.Value;
-                }
-            }
-            return orig(self, key);
-        }
-
-        private static List<FoyerCharacterSelectFlag> Foyer_SetUpCharacterCallbacks(On.Foyer.orig_SetUpCharacterCallbacks orig, Foyer self)
-        {
-            var sortedByX = orig(self);
-
-            RandomShrine.BuildCharacterList(sortedByX);
-            FoyerCharacterHandler.AddCustomCharactersToFoyer(sortedByX);
-
-            return sortedByX;
-        }
-
-        private static void PunchoutPlayerController_UpdateUI(On.PunchoutPlayerController.orig_UpdateUI orig, PunchoutPlayerController self)
+        //Hook for Punchout UI being updated (called when UI updates)
+        public static void PunchoutUpdateUI(Action<PunchoutPlayerController> orig, PunchoutPlayerController self)
         {
             orig(self);
             var customChar = GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>();
@@ -105,44 +102,7 @@ namespace CustomCharacters
             }
         }
 
-        private static string DfLanguageManager_GetValue(On.dfLanguageManager.orig_GetValue orig, dfLanguageManager self, string key)
-        {
-            if (characterDeathNames.Contains(key))
-            {
-                if (GameManager.Instance.PrimaryPlayer != null && GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>() != null && GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>().data != null)
-                {
-                    return GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>().data.name;
-                }
-            }
-            return orig(self, key);
-        }
-
-        private static string StringTableManager_GetTalkingPlayerName(On.StringTableManager.orig_GetTalkingPlayerName orig)
-        {
-            PlayerController talkingPlayer = Hooks.GetTalkingPlayer();
-            if (talkingPlayer.IsThief)
-            {
-                return "#THIEF_NAME";
-            }
-            if (talkingPlayer.GetComponent<CustomCharacter>() != null)
-            {
-                if (talkingPlayer.GetComponent<CustomCharacter>().data != null)
-                {
-                    return "#PLAYER_NAME_" + talkingPlayer.GetComponent<CustomCharacter>().data.nameShort.ToUpper();
-                }
-            }
-            if (talkingPlayer.characterIdentity == PlayableCharacters.Eevee)
-            {
-                return "#PLAYER_NAME_RANDOM";
-            }
-            if (talkingPlayer.characterIdentity == PlayableCharacters.Gunslinger)
-            {
-                return "#PLAYER_NAME_GUNSLINGER";
-            }
-            return "#PLAYER_NAME_" + talkingPlayer.characterIdentity.ToString().ToUpperInvariant();
-        }
-
-        private static string StringTableManager_GetTalkingPlayerNick(On.StringTableManager.orig_GetTalkingPlayerNick orig)
+        public static string GetTalkingPlayerNickHook(Func<string> orig)
         {
             PlayerController talkingPlayer = Hooks.GetTalkingPlayer();
             if (talkingPlayer.IsThief)
@@ -167,6 +127,43 @@ namespace CustomCharacters
             return "#PLAYER_NICK_" + talkingPlayer.characterIdentity.ToString().ToUpperInvariant();
         }
 
+        public static string GetValueHook(Func<dfLanguageManager, string, string> orig, dfLanguageManager self, string key)
+        {
+            if (characterDeathNames.Contains(key))
+            {
+                if (GameManager.Instance.PrimaryPlayer != null && GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>() != null && GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>().data != null)
+                {
+                    return GameManager.Instance.PrimaryPlayer.GetComponent<CustomCharacter>().data.name;
+                }
+            }
+            return orig(self, key);
+        }
+
+        public static string GetTalkingPlayerNameHook(Func<string> orig)
+        {
+            PlayerController talkingPlayer = Hooks.GetTalkingPlayer();
+            if (talkingPlayer.IsThief)
+            {
+                return "#THIEF_NAME";
+            }
+            if (talkingPlayer.GetComponent<CustomCharacter>() != null)
+            {
+                if (talkingPlayer.GetComponent<CustomCharacter>().data != null)
+                {
+                    return "#PLAYER_NAME_" + talkingPlayer.GetComponent<CustomCharacter>().data.nameShort.ToUpper();
+                }
+            }
+            if (talkingPlayer.characterIdentity == PlayableCharacters.Eevee)
+            {
+                return "#PLAYER_NAME_RANDOM";
+            }
+            if (talkingPlayer.characterIdentity == PlayableCharacters.Gunslinger)
+            {
+                return "#PLAYER_NAME_GUNSLINGER";
+            }
+            return "#PLAYER_NAME_" + talkingPlayer.characterIdentity.ToString().ToUpperInvariant();
+        }
+
         private static PlayerController GetTalkingPlayer()
         {
             List<TalkDoerLite> allNpcs = StaticReferenceManager.AllNpcs;
@@ -186,8 +183,59 @@ namespace CustomCharacters
             return GameManager.Instance.PrimaryPlayer;
         }
 
+        //Triggers FoyerCharacterHandler (called from Foyer.SetUpCharacterCallbacks)
+        public static List<FoyerCharacterSelectFlag> FoyerCallbacks(Func<Foyer, List<FoyerCharacterSelectFlag>> orig, Foyer self)
+        {
+            var sortedByX = orig(self);
 
-        public static void PrimaryPlayerSwitched(Action< string[]> orig, string[] args)
+            RandomShrine.BuildCharacterList(sortedByX);
+            FoyerCharacterHandler.AddCustomCharactersToFoyer(sortedByX);
+
+            return sortedByX;
+        }
+
+        //Used to add in strings 
+        public static string DFGetLocalizedValue(Func<dfControl, string, string> orig, dfControl self, string key)
+        {
+            foreach (var pair in StringHandler.customStringDictionary)
+            {
+                if (pair.Key.ToLower() == key.ToLower())
+                {
+                    return pair.Value;
+                }
+            }
+            return orig(self, key);
+        }
+
+        //Used to set fake player prefabs to active on instantiation (hook doesn't work on this call)
+        public static Object BraveLoadObject(Func<string, string, Object> orig, string path, string extension = ".prefab")
+        {
+            var value = orig(path, extension);
+            if (value == null)
+            {
+                path = path.ToLower();
+                if (CharacterBuilder.storedCharacters.ContainsKey(path))
+                {
+                    var character = CharacterBuilder.storedCharacters[path].Second;
+                    return character;
+                }
+            }
+            return value;
+        }
+
+        public static void OnPlayerChanged(Action<Foyer, PlayerController> orig, Foyer self, PlayerController player)
+        {
+            ResetInfiniteGuns();
+            orig(self, player);
+        }
+
+        public static void OnP2Cleared(Action<GameManager> orig, GameManager self)
+        {
+            orig(self);
+            ResetInfiniteGuns();
+        }
+
+        public static void PrimaryPlayerSwitched(Action<string[]> orig, string[] args)
         {
             try
             {

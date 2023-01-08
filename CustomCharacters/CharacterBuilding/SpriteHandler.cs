@@ -300,7 +300,7 @@ namespace CustomCharacters
                 var def = copyCollection.GetSpriteDefinition(tex.name);
                 if (def != null)
                 {
-                    def.ReplaceTexture(tex.CropWhiteSpace());
+                    def.ReplaceTexture(tex);
                 }
             }
 
