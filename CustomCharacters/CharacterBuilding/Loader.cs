@@ -16,26 +16,12 @@ namespace CustomCharacters
      */
     public static class Loader
     {
-        public static string CharacterDirectory = Path.Combine(ETGMod.ResourcesDirectory, "../CustomCharacterData/");
         public static string DataFile = "characterdata.txt";
 
         public static List<CustomCharacterData> characterData = new List<CustomCharacterData>();
 
         public static void Init()
         {
-            try
-            {
-                if (!Directory.Exists(CharacterDirectory))
-                {
-                    DirectoryInfo dir = Directory.CreateDirectory(CharacterDirectory);
-                    ETGModConsole.Log("Created directory: " + dir.FullName);
-                }
-            }
-            catch (Exception e)
-            {
-                Tools.PrintError("Error creating custom character directory");
-                Tools.PrintException(e);
-            }
 
             LoadCharacterData();
             foreach (CustomCharacterData data in characterData)
@@ -59,40 +45,46 @@ namespace CustomCharacters
         //Finds sprite folders, sprites, and characterdata.txt (and parses it)
         public static void LoadCharacterData()
         {
-            var directories = Directory.GetDirectories(CharacterDirectory);
-            Tools.Print("# of character folders found: " + directories.Length);
-            for (int i = 0; i < directories.Length; i++)
+            var dirs = Directory.GetFiles(BepInEx.Paths.PluginPath, "characterdata.txt", SearchOption.AllDirectories);
+            Tools.Print("# of character folders found: " + dirs.Length);
+            foreach (var dir in dirs)
             {
+                LoadFromDirectory(Path.Combine(dir, "..\\"));
+            }
+           
+        }
 
-                Tools.StartTimer("Loading data for " + Path.GetFileName(directories[i]));
+        private static void LoadFromDirectory(string dir)
+        {
+
+                Tools.StartTimer("Loading data for " + Path.GetFileName(dir));
                 Tools.Print("");
-                Tools.Print("--Loading " + Path.GetFileName(directories[i]) + "--", "0000FF");
-                string customCharacterDir = Path.Combine(CharacterDirectory, directories[i]);
-                string dataFilePath = Path.Combine(customCharacterDir, DataFile);
+                Tools.Print("--Loading " + Path.GetFileName(dir) + "--", "0000FF");
+                string dataFilePath = Path.Combine(dir, DataFile);
                 if (!File.Exists(dataFilePath))
                 {
-                    Tools.PrintError($"No \"{DataFile}\" file found for " + Path.GetFileName(directories[i]));
-                    continue;
+                    Tools.PrintError($"No \"{DataFile}\" file found for " + Path.GetFileName(dir));
+                    return;
                 }
 
                 var lines = ResourceExtractor.GetLinesFromFile(dataFilePath);
                 var data = ParseCharacterData(lines);
 
-                string spritesDir = Path.Combine(customCharacterDir, "sprites");
+                string spritesDir = Path.Combine(dir, "sprites");
                 if (Directory.Exists(spritesDir))
                 {
                     Tools.Print("Found: Sprites folder");
                     data.sprites = ResourceExtractor.GetTexturesFromDirectory(spritesDir);
                 }
 
-                string foyerDir = Path.Combine(customCharacterDir, "foyercard");
+                string foyerDir = Path.Combine(dir, "foyercard");
                 if (Directory.Exists(foyerDir))
                 {
                     Tools.Print("Found: Foyer card folder");
                     data.foyerCardSprites = ResourceExtractor.GetTexturesFromDirectory(foyerDir);
                 }
 
-                List<Texture2D> miscTextures = ResourceExtractor.GetTexturesFromDirectory(customCharacterDir);
+                List<Texture2D> miscTextures = ResourceExtractor.GetTexturesFromDirectory(dir);
                 foreach (var tex in miscTextures)
                 {
                     string name = tex.name.ToLower();
@@ -118,7 +110,7 @@ namespace CustomCharacters
                     }
                 }
 
-                string punchoutDir = Path.Combine(customCharacterDir, "punchout/");
+                string punchoutDir = Path.Combine(dir, "punchout/");
 
                 string punchoutSpritesDir = Path.Combine(punchoutDir, "sprites");
                 if (Directory.Exists(punchoutSpritesDir))
@@ -142,8 +134,7 @@ namespace CustomCharacters
                     }
                 }
                 characterData.Add(data);
-                Tools.StopTimerAndReport("Loading data for " + Path.GetFileName(directories[i]));
-            }
+                Tools.StopTimerAndReport("Loading data for " + Path.GetFileName(dir));
         }
 
         //Main parse loop

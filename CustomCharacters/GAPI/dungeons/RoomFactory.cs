@@ -15,7 +15,6 @@ namespace GungeonAPI
     public static class RoomFactory
     {
         public static Dictionary<string, RoomData> rooms = new Dictionary<string, RoomData>();
-        public static string roomDirectory = Path.Combine(ETGMod.GameFolder, "CustomRoomData");
         public static AssetBundle[] assetBundles =
         {
             ResourceManager.LoadAssetBundle("shared_auto_001"),
@@ -26,22 +25,6 @@ namespace GungeonAPI
         private static FieldInfo m_cellData = typeof(PrototypeDungeonRoom).GetField("m_cellData", BindingFlags.Instance | BindingFlags.NonPublic);
         private static RoomEventDefinition sealOnEnterWithEnemies = new RoomEventDefinition(RoomEventTriggerCondition.ON_ENTER_WITH_ENEMIES, RoomEventTriggerAction.SEAL_ROOM);
         private static RoomEventDefinition unsealOnRoomClear = new RoomEventDefinition(RoomEventTriggerCondition.ON_ENEMIES_CLEARED, RoomEventTriggerAction.UNSEAL_ROOM);
-
-
-
-        public static void LoadRoomsFromRoomDirectory()
-        {
-            Directory.CreateDirectory(roomDirectory);
-            foreach (string f in Directory.GetFiles(roomDirectory))
-            {
-                if (!f.EndsWith(".room")) continue;
-                string name = Path.GetFileName(f);
-                Tools.Log($"Found room: \"{name}\"");
-                var roomData = BuildFromFile(f);
-                DungeonHandler.Register(roomData);
-                rooms.Add(name, roomData);
-            }
-        }
 
         public static RoomData BuildFromFile(string roomPath)
         {
