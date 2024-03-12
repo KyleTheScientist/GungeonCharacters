@@ -94,7 +94,7 @@ namespace CustomCharacters
                 Tools.Print("        Using individual sprite replacement.", "FFBB00");
                 bool notSlinger = data.baseCharacter != PlayableCharacters.Gunslinger;
 
-                RuntimeAtlasPage page = new RuntimeAtlasPage();
+                //RuntimeAtlasPage page = new RuntimeAtlasPage();
                 for (int i = 0; i < data.sprites.Count; i++)
                 {
                     var tex = data.sprites[i];
@@ -106,10 +106,18 @@ namespace CustomCharacters
                     if (def != null)
                     {
 
-                        if (notSlinger && def.boundsDataCenter != Vector3.zero)
+                        if (notSlinger/* && data.baseCharacter != PlayableCharacters.Robot*/ && def.boundsDataCenter != Vector3.zero)
                         {
-                            var ras = page.Pack(tex);
-                            def.materialInst.mainTexture = ras.texture;
+                            var ras = ETGMod.Assets.Packer.Pack(tex);
+                            var newmat = new Material(def.material)
+                            {
+                                mainTexture = ras.texture
+                            };
+                            ras.texture.filterMode = FilterMode.Point;
+                            def.materialInst = def.material = newmat;
+                            def.texelSize = tex.texelSize;
+                            def.flipped = tk2dSpriteDefinition.FlipMode.None;
+
                             def.uvs = ras.uvs;
                             def.extractRegion = true;
                             def.position0 = new Vector3(0, 0, 0);
@@ -129,7 +137,7 @@ namespace CustomCharacters
                         }
                     }
                 }
-                page.Apply();
+                //page.Apply();
             }
             else
             {
