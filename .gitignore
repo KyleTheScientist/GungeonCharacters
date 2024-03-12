@@ -3,3 +3,4 @@ CustomCharacters/obj/
 CustomCharacters/CustomCharacters.csproj
 *.userprefs
 /mod/mod.dll
+/.vs
