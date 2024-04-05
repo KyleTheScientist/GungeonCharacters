@@ -49,7 +49,7 @@ namespace CustomCharacters
             Tools.Print("# of character folders found: " + dirs.Length);
             foreach (var dir in dirs)
             {
-                LoadFromDirectory(Path.Combine(dir, "..\\"));
+                LoadFromDirectory(Path.GetDirectoryName(dir));
             }
            
         }
