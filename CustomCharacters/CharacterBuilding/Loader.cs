@@ -200,6 +200,18 @@ namespace CustomCharacters
                     data.armor = floatValue;
                     continue;
                 }
+
+                if (line.StartsWith("punchout sprite fix:"))
+                {
+                    if (bool.TryParse(value.ToLowerInvariant(), out var res))
+                        data.punchoutSpriteFixEnabled = res;
+
+                    else
+                        Tools.PrintError($"Invalid punchout sprite fix value: {line}. Value must either be \"true\" or \"false\".");
+
+                    continue;
+                }
+
                 Tools.PrintError($"Line {i} in {DataFile} did not meet any expected criteria:");
                 Tools.PrintRaw("----" + line, true);
             }

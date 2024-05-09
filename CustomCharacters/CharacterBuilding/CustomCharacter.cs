@@ -19,6 +19,8 @@ namespace CustomCharacters
         public List<Tuple<PickupObject, bool>> loadout;
         public int characterID;
         public float health = 3, armor = 0;
+
+        public bool punchoutSpriteFixEnabled;
     }
 
     public class CustomCharacter : MonoBehaviour

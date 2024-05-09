@@ -309,6 +309,26 @@ namespace CustomCharacters
                 if (def != null)
                 {
                     def.ReplaceTexture(tex);
+
+                    if (data.punchoutSpriteFixEnabled)
+                    {
+                        // Read the width and height of the original frame by subtracting the coordinates of its lower left corner from the coordinates of its upper right corner.
+                        var hunterW = def.position3.x - def.position0.x;
+                        var hunterH = def.position3.y - def.position0.y;
+
+                        // Read and convert the width and height of the replacement texture into gungeon units.
+                        var thisW = tex.width / 16f;
+                        var thisH = tex.height / 16f;
+
+                        // Calculate the difference vector by subtracting the width and height of the replacement texture from the original width and height.
+                        var wDiffVector = new Vector3((thisW - hunterW) / 2f, 0);
+                        var hDiffVector = new Vector3(0, (thisH - hunterH) / 2f);
+
+                        def.position0 += -wDiffVector - hDiffVector; // Expand the lower left corner to the left and down.
+                        def.position1 += wDiffVector - hDiffVector; // Expand the lower right corner to the right and down.
+                        def.position2 += -wDiffVector + hDiffVector; // Expand the upper left corner to the left and up.
+                        def.position3 += wDiffVector + hDiffVector; // Expand the upper right corner to the right and up.
+                    }
                 }
             }
 
