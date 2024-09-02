@@ -14,7 +14,6 @@ namespace CustomCharacters
 {
     public static class FoyerCharacterHandler
     {
-        private static bool hasInitialized = false;
         private static FieldInfo m_isHighlighted = typeof(TalkDoerLite).GetField("m_isHighlighted", BindingFlags.NonPublic | BindingFlags.Instance);
 
         private static Vector3[] foyerPositions =
@@ -48,38 +47,8 @@ namespace CustomCharacters
             new Vector3(50.4f, 58.2f, 58.7f),
         };
 
-        public static void Init()
-        {
-            //ETGModConsole.Commands.AddUnit("pos", s =>
-            //{
-            //    Tools.Print(GameManager.Instance.PrimaryPlayer.transform.position, "55AAFF", true);
-            //});
-
-            Hook overheadElemAppearHook = new Hook(
-                typeof(TalkDoerLite).GetMethod("CreateOverheadUI", BindingFlags.Instance | BindingFlags.NonPublic),
-                typeof(FoyerCharacterHandler).GetMethod("CreateOverheadUI")
-            );
-        }
-
-        public static void CreateOverheadUI(Action<TalkDoerLite> orig, TalkDoerLite self)
-        {
-            bool wasActive = self.OverheadUIElementOnPreInteract != null && self.OverheadUIElementOnPreInteract.activeSelf;
-
-            self.OverheadUIElementOnPreInteract.SetActive(true);
-            orig(self);
-            if (!wasActive)
-                self.OverheadUIElementOnPreInteract.SetActive(false);
-            Tools.Print("Did overhead swippity swap");
-        }
-
         public static void AddCustomCharactersToFoyer(List<FoyerCharacterSelectFlag> sortedByX)
         {
-            if (!hasInitialized)
-            {
-                Init();
-                hasInitialized = true;
-            }
-
             foreach (var character in CharacterBuilder.storedCharacters)
             {
                 try

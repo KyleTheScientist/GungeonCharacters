@@ -494,6 +494,6 @@ C:\source\repos\GungeonCharacters\CustomCharacters\bin\Debug\UnityEngine.WebModu
 C:\source\repos\GungeonCharacters\CustomCharacters\bin\Debug\UnityEngine.WindModule.xml
 C:\source\repos\GungeonCharacters\CustomCharacters\obj\Debug\CustomCharacters.csproj.AssemblyReference.cache
 C:\source\repos\GungeonCharacters\CustomCharacters\obj\Debug\CustomCharacters.csproj.CoreCompileInputs.cache
-C:\source\repos\GungeonCharacters\CustomCharacters\obj\Debug\CustomCharacters.csproj.CopyComplete
 C:\source\repos\GungeonCharacters\CustomCharacters\obj\Debug\CustomCharacters.dll
 C:\source\repos\GungeonCharacters\CustomCharacters\obj\Debug\CustomCharacters.pdb
+C:\source\repos\GungeonCharacters\CustomCharacters\obj\Debug\CustomCh.DBD5CE65.Up2Date

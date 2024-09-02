@@ -14,7 +14,7 @@ namespace CustomCharacters
     [BepInPlugin(GUID, "Custom Characters Mod", version)]
     public class CustomCharactersModule : BaseUnityPlugin
     {
-        public const string version = "2.2.1";
+        public const string version = "2.2.7";
         public const string GUID = "kyle.etg.CCM";
         private static bool hasInitialized;
         public void Start()
