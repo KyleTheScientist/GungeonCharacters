@@ -4,6 +4,7 @@ using System.Reflection;
 
 using UnityEngine;
 using GungeonAPI;
+using Alexandria.CharacterAPI; // AddUISprite()
 
 namespace CustomCharacters
 {
@@ -230,22 +231,7 @@ namespace CustomCharacters
 
         public static void HandleFacecards(PlayerController player, CustomCharacterData data)
         {
-            var atlas = uiAtlas;
-            var atlasTex = atlas.Texture;
-
-            dfAtlas.ItemInfo info = new dfAtlas.ItemInfo();
-            info.name = player.name + "_facecard";
-            info.region = TextureStitcher.AddFaceCardToAtlas(data.faceCard, atlasTex, uiFaceCards.Count, uiFacecardBounds);
-            info.sizeInPixels = faceCardSizeInPixels;
-
-            atlas.AddItem(info);
-
-            if (atlas.Replacement)
-            {
-                atlas.Replacement.Material.mainTexture = atlasTex;
-            }
-
-            uiFaceCards.Add(info);
+            ToolsCharApi.AddUISprite(data.faceCard, player.name + "_facecard");
         }
 
         public static void HandlePunchoutSprites(PunchoutPlayerController player, CustomCharacterData data)
@@ -276,13 +262,7 @@ namespace CustomCharacters
                 int count = Mathf.Min(data.punchoutFaceCards.Count, 3);
                 for (int i = 0; i < count; i++)
                 {
-                    dfAtlas.ItemInfo info = new dfAtlas.ItemInfo();
-                    info.name = data.nameInternal + "_punchout_facecard" + (i + 1);
-                    info.region = TextureStitcher.AddFaceCardToAtlas(data.punchoutFaceCards[i], atlasTex, uiFaceCards.Count, uiFacecardBounds);
-                    info.sizeInPixels = faceCardSizeInPixels;
-
-                    atlas.AddItem(info);
-                    uiFaceCards.Add(info);
+                    ToolsCharApi.AddUISprite(data.punchoutFaceCards[i], data.nameInternal + "_punchout_facecard" + (i + 1));
                 }
             }
         }
